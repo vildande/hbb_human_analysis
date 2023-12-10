@@ -1,58 +1,37 @@
 from Bio import SeqIO
-from Bio.SeqUtils import gc_fraction
-import matplotlib.pyplot as plt
-import numpy as np
+
+
+def find_variation_details(record):
+    for feature in record.features:
+        if feature.type == "variation":
+            position = int(feature.location.start)
+            original_nucleotide = feature.qualifiers.get('replace', [None])[0]
+            return position, original_nucleotide if original_nucleotide == None else original_nucleotide.upper()
+    return None, None
+
+
+def analyze_mutation(sequence, position, original_nucleotide):
+    if position is None:
+        print("No variation position found in the record.")
+        return
+
+    actual_nucleotide = sequence[position]
+    print(f"Nucleotide at position {position + 1}: {actual_nucleotide}")
+
+    if actual_nucleotide == original_nucleotide:
+        print(f"No change: Nucleotide is not mutated")
+    else:
+        print(f"Mutation detected: Found '{actual_nucleotide}' instead of expected '{original_nucleotide}'.")
 
 
 def main():
     filename = "hbb_human.gb"
     with open(filename, "r") as file:
         record = SeqIO.read(file, "genbank")
-
-    print(f"ID: {record.id}")
-    print(f"Name: {record.name}")
-    print(f"Description: {record.description}")
-
-    feature_types = []
-    gc_contents = []
-
-
-    for feature in record.features:
-        if feature.type in ["regulatory", "exon", "CDS"]:
-            if feature.type == "exon" and "number" in feature.qualifiers:
-                feature_label = f"{feature.type} {feature.qualifiers['number'][0]}"
-            else:
-                feature_label = feature.type
-            print("========================================")
-
-            print(f"Feature Type: {feature_label}")
-            print(f"Location: {feature.location}")
-
-            seq = feature.extract(record.seq)
-            print(f"\nExtracted Sequence: {seq}")
-
-            gc_content = gc_fraction(seq)
-            print(f"\nGC Content: {gc_content}\n")
-
-
-            feature_types.append(feature_label)
-            gc_contents.append(gc_content)
-
-            if feature.type == "CDS":
-                print(f"mRNA Sequence: {seq.transcribe()}")
-                print(f"\nProtein Sequence: {seq.translate()}")
-            
-
-    plt.figure(figsize=(10, 6))
-    plt.bar(feature_types, gc_contents, color='springgreen', align='center', width=0.4)
-    plt.xlabel('Feature Type')
-    plt.xticks(rotation=45)
-    plt.ylabel('GC Content')
-    plt.ylim(0, 1.0)
-    plt.yticks(np.arange(0, 1.1, 0.1))
-    plt.title('GC Content by Feature Type in HBB Gene')
-    plt.tight_layout()
-    plt.show()
+        
+    # Homozygous-29 A->G mutation detected at the promoter region of beta globin gene on a black patient with beta-thalassemia major
+    position, original_nucleotide = find_variation_details(record)
+    analyze_mutation(record.seq, position, original_nucleotide)
 
 
 if __name__ == "__main__":
