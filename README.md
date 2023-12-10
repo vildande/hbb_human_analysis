@@ -1,4 +1,4 @@
 # hbb_human_gc
-GC Content by Feature Type in Homo sapiens hemoglobin (HBB) gene from ncbi
+Checking the Homozygous-29 A->G mutation at the promoter region of Homo sapiens beta globin (HBB) gene.
 
-source: https://www.ncbi.nlm.nih.gov/nuccore/DQ659148.1?report=genbank&to=646
+source (ncbi): https://www.ncbi.nlm.nih.gov/nuccore/DQ659148.1?report=genbank&to=646
